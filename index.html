@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Library</title>
+
+<style>
+ {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f3ed;
+  color: #293d38;
+}
+
+header {
+  background: #1d3835;
+  color: white;
+  padding: 30px 7%;
+}
+
+header h1 {
+  margin: 0 0 8px;
+}
+
+header p {
+  color: #c9d5cc;
+  margin: 0;
+}
+
+main {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 18px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat, .panel {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px #00000009;
+}
+
+.stat h2 {
+  margin: 8px 0 0;
+  font-size: 30px;
+  color: #315d50;
+}
+
+.panel {
+  margin-bottom: 22px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d7ddd6;
+  border-radius: 7px;
+  font-size: 14px;
+  background: white;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 75px;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+button {
+  padding: 11px 16px;
+  border: none;
+  border-radius: 7px;
+  background: #315d50;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  opacity: .85;
+}
+
+.secondary {
+  background: #e8eee9;
+  color: #315d50;
+}
+
+.danger {
+  background: #b85b50;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.toolbar input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.toolbar select {
+  width: auto;
+  min-width: 140px;
+}
+
+.book-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 15px;
+}
+
+.book {
+  border: 1px solid #e5e8e2;
+  border-radius: 10px;
+  padding: 17px;
+  background: white;
+}
+
+.book h3 {
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.book p {
+  color: #6d7b73;
+  font-size: 13px;
+  margin: 7px 0;
+  overflow-wrap: anywhere;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 9px;
+  background: #e8eee9;
+  color: #315d50;
+  border-radius: 20px;
+  font-size: 11px;
+  margin: 5px 3px 5px 0;
+}
+
+.book-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.book-actions button {
+  flex: 1;
+  font-size: 12px;
+  padding: 9px 5px;
+}
+
+.empty {
+  text-align: center;
+  padding: 35px 10px;
+  color: #87938a;
+  grid-column: 1 / -1;
+}
+
+.progress {
+  background: #e9eee9;
+  height: 7px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress div {
+  height: 100%;
+  background: #709b7e;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #87938a;
+  font-size: 12px;
+}
+
+@media(max-width:600px) {
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full {
+    grid-column: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📚 My Reading Library</h1>
+  <p>Your little world of books. Simpan cerita, catat perjalanan membaca. — <strong>Raka Praditya P. (29) X1</strong></p>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section class="stats">
+    <div class="stat">
+      <span>Total Buku</span>
+      <h2 id="total">0</h2>
+    </div>
+
+    <div class="stat">
+      <span>Sedang Dibaca</span>
+      <h2 id="reading">0</h2>
+    </div>
+
+    <div class="stat">
+      <span>Selesai Dibaca</span>
+      <h2 id="finished">0</h2>
+    </div>
+  </section>
+
+  <!-- FORM TAMBAH BUKU -->
+  <section class="panel">
+    <h3 id="formTitle">＋ Tambahkan Buku Baru</h3>
+
+    <form id="bookForm">
+      <input type="hidden" id="bookId">
+
+      <div class="form-grid">
+
+        <input id="judul"
+          placeholder="Judul buku" required>
+
+        <input id="penulis"
+          placeholder="Nama penulis" required>
+
+        <input id="penerbit"
+          placeholder="Penerbit">
+
+        <input id="tahun"
+          type="number" placeholder="Tahun terbit">
+
+        <select id="kategori">
+          <option value="Novel">Novel</option>
+          <option value="Pendidikan">Pendidikan</option>
+          <option value="Sejarah">Sejarah</option>
+          <option value="Biografi">Biografi</option>
+          <option value="Pengembangan Diri">Pengembangan Diri</option>
+          <option value="Sains">Sains</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+
+        <input id="halaman"
+          type="number" min="1"
+          placeholder="Jumlah halaman">
+
+        <select id="status">
+          <option value="Belum Dibaca">Belum Dibaca</option>
+          <option value="Sedang Dibaca">Sedang Dibaca</option>
+          <option value="Selesai Dibaca">Selesai Dibaca</option>
+        </select>
+
+        <input id="progressPage"
+          type="number" min="0"
+          placeholder="Halaman terakhir dibaca">
+
+        <textarea id="catatan" class="full"
+          placeholder="Catatan atau kesan setelah membaca..."></textarea>
+
+      </div>
+
+      <br>
+
+      <button type="submit" id="saveBtn">
+        Simpan Buku
+      </button>
+
+      <button type="button"
+        class="secondary"
+        onclick="resetForm()">
+        Reset
+      </button>
+
+    </form>
+  </section>
+
+  <!-- DAFTAR BUKU -->
+  <section class="panel">
+
+    <h3>📖 Koleksi Buku Saya</h3>
+
+    <div class="toolbar">
+
+      <input id="search"
+        placeholder="Cari judul atau penulis...">
+
+      <select id="filterStatus">
+        <option value="">Semua Status</option>
+        <option>Belum Dibaca</option>
+        <option>Sedang Dibaca</option>
+        <option>Selesai Dibaca</option>
+      </select>
+
+      <select id="filterCategory">
+        <option value="">Semua Kategori</option>
+        <option>Novel</option>
+        <option>Pendidikan</option>
+        <option>Sejarah</option>
+        <option>Biografi</option>
+        <option>Pengembangan Diri</option>
+        <option>Sains</option>
+        <option>Lainnya</option>
+      </select>
+
+    </div>
+
+    <div id="bookList" class="book-list">
+      <div class="empty">Memuat koleksi buku...</div>
+    </div>
+
+  </section>
+
+  <!-- EKSPOR DATA -->
+  <section class="panel">
+
+    <h3>💾 Cadangkan Database</h3>
+
+    <p style="color:#78867c;font-size:13px">
+      Simpan salinan seluruh data buku dalam format JSON.
+    </p>
+
+    <button onclick="exportData()">
+      Ekspor Data
+    </button>
+
+  </section>
+
+</main>
+
+<footer>
+  My Reading Library © 2026 | Personal Book Database
+</footer>
+
+
+<script>
+
+// ==================================
+// 1. MEMBUAT DATABASE
+// ==================================
+
+let db;
+
+const request = indexedDB.open("MyReadingLibrary", 1);
+
+request.onupgradeneeded = function(event) {
+
+  const database = event.target.result;
+
+  if (!database.objectStoreNames.contains("books")) {
+
+    const store = database.createObjectStore("books", {
+      keyPath: "id",
+      autoIncrement: true
+    });
+
+    store.createIndex("judul", "judul", {unique:false});
+    store.createIndex("penulis", "penulis", {unique:false});
+    store.createIndex("kategori", "kategori", {unique:false});
+    store.createIndex("status", "status", {unique:false});
+
+  }
+};
+
+request.onsuccess = function(event) {
+  db = event.target.result;
+  displayBooks();
+};
+
+request.onerror = function() {
+  alert("Database gagal dibuka.");
+};
+
+
+// ==================================
+// 2. MENGAMBIL SELURUH DATA
+// ==================================
+
+function getAllBooks(callback) {
+
+  const transaction = db.transaction("books", "readonly");
+
+  const store = transaction.objectStore("books");
+
+  const request = store.getAll();
+
+  request.onsuccess = function() {
+    callback(request.result);
+  };
+
+}
+
+
+// ==================================
+// 3. MENAMBAHKAN DAN MENGEDIT BUKU
+// ==================================
+
+document.getElementById("bookForm")
+.addEventListener("submit", function(e) {
+
+  e.preventDefault();
+
+  const totalPages =
+    Number(document.getElementById("halaman").value) || 0;
+
+  const currentPage =
+    Number(document.getElementById("progressPage").value) || 0;
+
+  if (currentPage < 0 ||
+      currentPage > totalPages && totalPages > 0) {
+
+    alert("Halaman terakhir tidak boleh melebihi jumlah halaman buku.");
+    return;
+  }
+
+  if (currentPage > 0 && totalPages === 0) {
+
+    alert("Isi jumlah halaman terlebih dahulu.");
+    return;
+  }
+
+  const data = {
+
+    judul: document.getElementById("judul").value.trim(),
+
+    penulis: document.getElementById("penulis").value.trim(),
+
+    penerbit: document.getElementById("penerbit").value.trim(),
+
+    tahun: document.getElementById("tahun").value,
+
+    kategori: document.getElementById("kategori").value,
+
+    halaman: totalPages,
+
+    status: document.getElementById("status").value,
+
+    progressPage: currentPage,
+
+    catatan: document.getElementById("catatan").value.trim()
+
+  };
+
+  const id = document.getElementById("bookId").value;
+
+  const transaction = db.transaction("books", "readwrite");
+
+  const store = transaction.objectStore("books");
+
+  if (id) {
+
+    data.id = Number(id);
+    store.put(data);
+
+  } else {
+
+    store.add(data);
+
+  }
+
+  transaction.oncomplete = function() {
+
+    resetForm();
+
+    displayBooks();
+
+    alert(id
+      ? "Data berhasil diperbarui!"
+      : "Buku berhasil ditambahkan!");
+
+  };
+
+});
+
+
+// ==================================
+// 4. MENAMPILKAN DATA BUKU
+// ==================================
+
+function displayBooks() {
+
+  getAllBooks(function(books) {
+
+    document.getElementById("total").textContent =
+      books.length;
+
+    document.getElementById("reading").textContent =
+      books.filter(b =>
+        b.status === "Sedang Dibaca"
+      ).length;
+
+    document.getElementById("finished").textContent =
+      books.filter(b =>
+        b.status === "Selesai Dibaca"
+      ).length;
+
+
+    const search =
+      document.getElementById("search").value.toLowerCase();
+
+    const status =
+      document.getElementById("filterStatus").value;
+
+    const category =
+      document.getElementById("filterCategory").value;
+
+
+    const filtered = books.filter(b =>
+
+      (b.judul + " " + b.penulis)
+        .toLowerCase().includes(search) &&
+
+      (!status || b.status === status) &&
+
+      (!category || b.kategori === category)
+
+    );
+
+
+    const list = document.getElementById("bookList");
+
+    if (filtered.length === 0) {
+
+      list.innerHTML =
+        '<div class="empty">Belum ada buku yang sesuai. Tambahkan buku pertamamu!</div>';
+
+      return;
+
+    }
+
+
+    list.innerHTML = filtered.map(b => {
+
+      const percent = b.halaman > 0
+        ? Math.min(100, Math.round(
+            b.progressPage / b.halaman * 100
+          ))
+        : 0;
+
+      return `
+
+        <article class="book">
+
+          <h3>${escapeHTML(b.judul)}</h3>
+
+          <p>✍️ ${escapeHTML(b.penulis)}</p>
+
+          <p>🏢 ${escapeHTML(b.penerbit || "-")}</p>
+
+          <p>📅 ${escapeHTML(b.tahun || "-")}</p>
+
+          <span class="tag">
+            ${escapeHTML(b.kategori)}
+          </span>
+
+          <span class="tag">
+            ${escapeHTML(b.status)}
+          </span>
+
+          <p>
+            Halaman: ${b.progressPage} / ${b.halaman}
+          </p>
+
+          <div class="progress">
+            <div style="width:${percent}%"></div>
+          </div>
+
+          <p>${percent}% selesai</p>
+
+          <p>
+            <b>Catatan:</b>
+            ${escapeHTML(b.catatan || "-")}
+          </p>
+
+          <div class="book-actions">
+
+            <button class="secondary"
+              onclick="editBook(${b.id})">
+              Edit
+            </button>
+
+            <button class="danger"
+              onclick="deleteBook(${b.id})">
+              Hapus
+            </button>
+
+          </div>
+
+        </article>
+
+      `;
+
+    }).join("");
+
+  });
+
+}
+
+
+// ==================================
+// 5. PENGAMAN TEKS HTML
+// ==================================
+
+function escapeHTML(value) {
+
+  return String(value).replace(/[&<>"']/g, char => ({
+
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+
+  })[char]);
+
+}
+
+
+// ==================================
+// 6. MENGEDIT BUKU
+// ==================================
+
+function editBook(id) {
+
+  const transaction =
+    db.transaction("books", "readonly");
+
+  const request =
+    transaction.objectStore("books").get(id);
+
+  request.onsuccess = function() {
+
+    const b = request.result;
+
+    if (!b) return;
+
+    document.getElementById("bookId").value = b.id;
+
+    document.getElementById("judul").value = b.judul;
+
+    document.getElementById("penulis").value = b.penulis;
+
+    document.getElementById("penerbit").value = b.penerbit;
+
+    document.getElementById("tahun").value = b.tahun;
+
+    document.getElementById("kategori").value = b.kategori;
+
+    document.getElementById("halaman").value = b.halaman;
+
+    document.getElementById("status").value = b.status;
+
+    document.getElementById("progressPage").value =
+      b.progressPage;
+
+    document.getElementById("catatan").value = b.catatan;
+
+    document.getElementById("formTitle").textContent =
+      "✏️ Edit Data Buku";
+
+    document.getElementById("saveBtn").textContent =
+      "Perbarui Buku";
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  };
+
+}
+
+
+// ==================================
+// 7. MENGHAPUS BUKU
+// ==================================
+
+function deleteBook(id) {
+
+  if (!confirm("Yakin ingin menghapus buku ini?")) {
+    return;
+  }
+
+  const transaction =
+    db.transaction("books", "readwrite");
+
+  transaction.objectStore("books").delete(id);
+
+  transaction.oncomplete = displayBooks;
+
+}
+
+
+// ==================================
+// 8. RESET FORMULIR
+// ==================================
+
+function resetForm() {
+
+  document.getElementById("bookForm").reset();
+
+  document.getElementById("bookId").value = "";
+
+  document.getElementById("formTitle").textContent =
+    "＋ Tambahkan Buku Baru";
+
+  document.getElementById("saveBtn").textContent =
+    "Simpan Buku";
+
+}
+
+
+// ==================================
+// 9. EKSPOR DATABASE
+// ==================================
+
+function exportData() {
+
+  getAllBooks(function(books) {
+
+    const blob = new Blob(
+      [JSON.stringify(books, null, 2)],
+      {type:"application/json"}
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+
+    a.download = "MyReadingLibrary.json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+  });
+
+}
+
+
+// ==================================
+// 10. PENCARIAN DAN FILTER
+// ==================================
+
+document.getElementById("search")
+.addEventListener("input", displayBooks);
+
+document.getElementById("filterStatus")
+.addEventListener("change", displayBooks);
+
+document.getElementById("filterCategory")
+.addEventListener("change", displayBooks);
+
+</script>
+
+</body>
+</html>
